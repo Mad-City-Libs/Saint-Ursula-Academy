@@ -1,0 +1,339 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>This or That?</title>
+        <link rel="icon" href="party-emoji.ico" type="image/x-icon">
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                background: linear-gradient(135deg, #ffb3c6, #bde0fe);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            .card {
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                text-align: center;
+                width: 300px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            }
+
+            h1 {
+                margin-bottom: 25px;
+                font-size: 28px;
+            }
+
+            button {
+                width: 100%;
+                padding: 14px;
+                margin: 10px 0;
+                font-size: 16px;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: transform 0.2s ease, opacity 0.25s ease;
+                opacity: 1;
+                font-weight: bold;
+            }
+
+            button:hover {
+                transform: scale(1.05);
+            }
+
+            .left { background:#ffafcc; }
+            .right { background:#a2d2ff; }
+
+            .confetti {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                pointer-events: none;
+            }
+
+            #summary ul {
+                list-style: none;
+                padding: 0;
+                margin: 20px 0;
+            }
+
+            #summary li {
+                margin: 8px 0;
+                font-size: 16px;
+            }
+
+            #summary {
+                display: none;
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
+            #summary.show {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="card">
+            <h1>This or That?</h1>
+            <button class="left" onclick="nextChoice('left')" aria-label="Choose Dance Floor">Dance Floor 💃</button>
+            <button class="right" onclick="nextChoice('right')" aria-label="Choose Snack Table">Snack Table 🍪</button>
+            <p id="roundCounter" style="margin-bottom: 20px; font-weight: bold;">Round 1 of 6</p>
+        </div>
+
+        <div id="summary">
+                <h1>Your Dance Vibe ✨</h1>
+                <ul id="results"></ul>
+                <button onclick="playAgain()">Play Again 🔁</button>
+        </div>
+        
+        <script>
+            const choices = [
+                ["Slow Song 🎵", "Hype Song 🔥"], //Chill / Hype
+                ["Group Pics 📸", "Live the Moment ✨"], // Social /Free  
+                ["Dress Up 💅", "Stay Casual 👟"], // Glam / Casual
+                ["Glow Sticks ✨", "Photo Booth 📷"], // Fun / Creative
+                ["Singing Along 🎤", "Silent Dance 🕺"], //Outgoing / Chill
+                ["Chocolate Favors 🍫", "Candy Favors 🍭"] //Sweet / Sweet
+            ];
+            
+            const MAX_ROUNDS = choices.length;
+            let round = 0;
+            let history = [];
+            let shuffledChoices = [];
+
+            function shuffle(array) {
+                return array.sort(() => Math.random() - 0.5);
+            }
+
+            function startGame() {
+                round = 0;
+                shuffledChoices = shuffle([...choices]);
+                document.getElementById("roundCounter").textContent = `Round ${round + 1} of ${MAX_ROUNDS}`;
+
+                const cardButtons = document.querySelectorAll(".card button");
+                cardButtons[0].textContent = shuffledChoices[round][0];
+                cardButtons[1].textContent = shuffledChoices[round][1];
+            }
+            
+            function createConfetti() {
+                for (let i = 0; i < 80; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('confetti');
+                    dot.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                    dot.style.left = `${Math.random() * window.innerWidth}px`;
+                    dot.style.top = `${Math.random() * window.innerHeight}px`;
+                    dot.style.opacity = 1;
+                    document.body.appendChild(dot);
+
+                    const xMove = (Math.random() - 0.5) * 100;
+                    const yMove = (Math.random() - 0.5) * 100 + 50;
+
+                    dot.animate([
+                        {transform: 'translate(0,0)', opacity: 1},
+                        {transform: `translate(${xMove}px, ${yMove}px) rotate(${Math.random()*360}deg)`, opacity: 0}
+                    ], {
+                        duration: 1000 + Math.random() * 500,
+                        easing: 'ease-out',
+                    });
+
+                    setTimeout(() => dot.remove(), 1500);
+                }
+            }
+
+            function nextChoice(selectedSide) {
+                const cardButtons = document.querySelectorAll(".card button");
+                const btn1 = cardButtons [0];
+                const btn2 = cardButtons [1];
+
+                // Save what was picked
+                history.push(selectedSide === 'left' ? btn1.textContent : btn2.textContent);
+
+                createConfetti();
+
+                //Fade out buttons
+                btn1.disabled = true;
+                btn2.disabled = true;
+                btn1.style.opacity = 0;
+                btn2.style.opacity = 0;
+
+                setTimeout(() => {
+                    round++; // increment round AFTER fade
+                
+                    if (round >= MAX_ROUNDS) {
+                        showSummary();
+                        return;
+                    }
+
+                    document.getElementById("roundCounter").textContent = `Round ${round + 1} of ${MAX_ROUNDS}`;
+                
+                    btn1.textContent = shuffledChoices[round][0];
+                    btn2.textContent = shuffledChoices[round][1];
+                    btn1.disabled = false;
+                    btn2.disabled = false;
+                    btn1.style.opacity = 1;
+                    btn2.style.opacity = 1;
+                }, 200);
+
+            }
+
+            function showSummary() {
+                createConfetti(); 
+                createConfetti(); // extra sparkle
+                const card = document.querySelector(".card");
+                const summary = document.getElementById("summary");
+                const results = document.getElementById("results");
+                
+                card.style.display = "none";
+                summary.classList.remove("show");
+                results.innerHTML = "";
+
+                // 🔥 Remove any old mood display (important on replay)
+                const oldMood = summary.querySelector(".mood-display");
+                if (oldMood) oldMood.remove();
+
+                // Define vibes for mood calculation
+                const vibes = {
+                chill: ["Slow Song 🎵", "Silent Dance 🕺", "Stay Casual 👟"],
+                hype: ["Hype Song 🔥", "Singing Along 🎤"],
+                social: ["Group Pics 📸", "Live the Moment ✨"],
+                fun: ["Glow Sticks ✨", "Photo Booth 📷"],
+                sweet: ["Chocolate Favors 🍫", "Candy Favors 🍭"]
+            };
+
+                // Count how many choices match each vibe
+                let moodCounts = { chill: 0, hype: 0, social: 0, fun: 0, sweet: 0 };
+                history.forEach(choice => {
+                        for (const [vibe, items] of Object.entries(vibes)) {
+                            if (items.includes(choice))  moodCounts[vibe]++;
+                        }
+                });
+                
+
+                // Determine top mood
+                let topMood = Object.keys(moodCounts).reduce((a,b) => 
+                        moodCounts[a] > moodCounts [b] ? a : b
+                    );   
+            
+                // Create mood display
+                const moodDisplay = document.createElement("p");
+                moodDisplay.className = "mood-display";
+                moodDisplay.textContent = `Your vibe is: ${topMood.toUpperCase()} ✨`;
+
+                Object.assign(moodDisplay.style, {
+                    fontWeight: "bold",
+                    fontSize: '18px',
+                    marginBottom: "15px",
+                    background: "linear-gradient(90deg, #ffafcc, #a2d2ff)",
+                    borderRadius: "12px",
+                    padding: "8px",
+                    color: "white",
+                    textAlign: "center",
+                    opacity: 0
+                });
+                
+                results.before(moodDisplay);
+
+                // ✨ Fade + sparkle
+                setTimeout(() => {
+                    moodDisplay.style.transition = "opacity 0.5s ease";
+                    moodDisplay.style.opacity = 1;
+                    sparkleText(moodDisplay);
+                }, 50);
+
+                //Sparkle animation
+                function sparkleText(element) {
+                    element.animate([
+                        {textShadow: '0 0 2px #fff, 0 0 5px #ffafcc', opacity: 1},
+                        {textShadow: '0 0 3px #fff, 0 0 10px #a2d2ff', opacity: 0.9},
+                        {textShadow: '0 0 2px #fff, 0 0 5px #ffafcc', opacity: 1}
+                    ], {
+                        duration: 1000,
+                        iterations: 3,
+                        easing: 'ease-in-out'
+                    });
+                }
+                
+                // Animate choices list
+                history.forEach((choice, i) => {
+                    const li = document.createElement("li");
+                    li.textContent = choice;
+                    li.style.opacity = 0;
+                    li.style.transform = "translateY(-10px)";
+                    results.appendChild(li);
+                
+                    setTimeout(() => {
+                        li.style.transition = "all 0.3s ease";
+                        li.style.opacity = 1;
+                        li.style.transform = "translateY(0)";
+                    }, i * 150);
+                });
+                
+                summary.style.display = "block";
+                setTimeout(() => summary.classList.add("show"), 50);
+            }
+
+            //Optional: minni confetti for extra fun
+            miniConfetti(); // initial burst of fun
+
+            function miniConfetti() {
+                for (let i = 0; i < 30; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('confetti');
+                    dot.style.width = '6px';
+                    dot.style.height = '6px';
+                    dot.style.background = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                    dot.style.left = `${Math.random() * window.innerWidth}px`;
+                    dot.style.top = `${Math.random() * window.innerHeight}px`;
+                    dot.style.opacity = 1;
+                    document.body.appendChild(dot);
+
+                    const xMove = (Math.random() - 0.5) * 50;
+                    const yMove = (Math.random() - 0.5) * 50 + 25;
+
+                    dot.animate([
+                        {transform: 'translate(0,0)', opacity: 1},
+                        {transform: `translate(${xMove}px, ${yMove}px) rotate(${Math.random()*360}deg)`, opacity: 0}
+                    ], {
+                        duration: 800 + Math.random() * 400,
+                        easing: 'ease-out',
+                    });
+
+                    setTimeout(() => dot.remove(), 1200);
+                }
+            }
+
+            function playAgain() {
+                history = [];
+                document.getElementById("summary").style.display = "none";
+                const card = document.querySelector(".card");
+                card.style.display = "block";
+                
+
+                //Reset buttons
+                const cardButtons = document.querySelectorAll(".card button");
+                cardButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = 1;
+                });
+
+                startGame();
+                miniConfetti(); // celebrate the restart
+            }
+            
+            startGame();
+            </script>
+
+            <p style="position: absolute; bottom: 10px; width: 100%; text-align:center; font-size: 12px; margin-top: 20px; color: #555;">
+                Created by Dario Sedler (2029)
+            </p>
+    </body>
+</html>
