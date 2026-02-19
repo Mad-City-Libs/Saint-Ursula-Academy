@@ -2,7 +2,7 @@ This or That? – Dance Vibe Game 💃🍪
 
 Created by: Dario Sedler (2029)
 
-Live demo: [Add your URL here once hosted]
+Live demo: https://mad-city-libs.github.io/Saint-Ursula-Academy/
 
 Description
 
@@ -50,7 +50,7 @@ Setup & Usage
 
 Clone the repository:
 
-git clone https://github.com/yourusername/this-or-that.git
+git clone https://github.com/SuperArchery/this-or-that.git
 
 
 Open index.html in your favorite browser.
