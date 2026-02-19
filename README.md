@@ -50,7 +50,7 @@ Setup & Usage
 
 Clone the repository:
 
-git clone https://github.com/SuperArchery/this-or-that.git
+git clone [https://github.com/SuperArchery/this-or-that.gi](https://github.com/Mad-City-Libs/Saint-Ursula-Academy)t
 
 
 Open index.html in your favorite browser.
